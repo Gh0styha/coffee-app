@@ -69,9 +69,9 @@ class AddEditForm(QWidget, Ui_AddEditCoffeeForm):
         self.parent_window = parent
         self.coffee_id = coffee_id
         if coffee_id is None:
-            self.setWindowTitle("Добавить кофе")
+            self.setWindowTitle("Добавить сорт кофе")
         else:
-            self.setWindowTitle("Изменить кофе")
+            self.setWindowTitle("Изменить сорт кофе")
 
         con = sqlite3.connect(DB_PATH)
         cur = con.cursor()
