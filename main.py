@@ -1,13 +1,22 @@
 import sys
 import sqlite3
-from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QWidget, QTableWidget, QTableWidgetItem
+import os
+from UI.main_ui import Ui_Form
+from UI.addEditCoffeeForm_ui import Ui_AddEditCoffeeForm
+
+if getattr(sys, "frozen", False):
+    base = os.path.dirname(sys.executable)
+else:
+    base = os.path.dirname(os.path.abspath(__file__))
+
+DB_PATH = os.path.join(base, "data", "coffee.sqlite")
 
 
-class Window(QWidget):
+class Window(QWidget, Ui_Form):
     def __init__(self):
         super().__init__()
-        uic.loadUi("main.ui", self)
+        self.setupUi(self)
 
         self.tableWidget.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tableWidget.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -17,7 +26,7 @@ class Window(QWidget):
         self.load_data()
 
     def load_data(self):
-        con = sqlite3.connect("coffee.sqlite")
+        con = sqlite3.connect(DB_PATH)
         cur = con.cursor()
         result = cur.execute("""
         SELECT coffee_info.id, name, roastings.roasting, types.type_name, description, cost, volume 
@@ -52,10 +61,11 @@ class Window(QWidget):
         self.form.show()
 
 
-class AddEditForm(QWidget):
+class AddEditForm(QWidget, Ui_AddEditCoffeeForm):
     def __init__(self, parent, coffee_id=None):
         super().__init__()
-        uic.loadUi("addEditCoffeeForm.ui", self)
+        self.setupUi(self)
+
         self.parent_window = parent
         self.coffee_id = coffee_id
         if coffee_id is None:
@@ -63,7 +73,7 @@ class AddEditForm(QWidget):
         else:
             self.setWindowTitle("Изменить кофе")
 
-        con = sqlite3.connect("coffee.sqlite")
+        con = sqlite3.connect(DB_PATH)
         cur = con.cursor()
 
         roast_combo = cur.execute("""
@@ -107,8 +117,10 @@ class AddEditForm(QWidget):
         desc = self.descEdit.toPlainText()
         cost = self.costBox.value()
         volume = self.volumeBox.value()
-        con = sqlite3.connect("coffee.sqlite")
+
+        con = sqlite3.connect(DB_PATH)
         cur = con.cursor()
+
         if self.coffee_id is None:
             cur.execute(
                 """
